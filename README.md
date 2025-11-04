@@ -93,11 +93,18 @@ Use **Postman** to test your API endpoints while the container is running.
 ### `Dockerfile` (Spring Boot)
 
 ```dockerfile
-FROM openjdk:17-jdk-slim
-VOLUME /tmp
+FROM eclipse-temurin:17-jre-jammy
+
+RUN useradd -ms /bin/bash appuser
+WORKDIR /app
+
 ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+COPY --chown=appuser:appuser ${JAR_FILE} app.jar
+
+USER appuser
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app/app.jar"]
+
 ```
 
 ### `.dockerignore`
@@ -113,6 +120,7 @@ target/*
 *.iml
 *.log
 node_modules
+
 ```
 
 ### `docker-compose.yml`
