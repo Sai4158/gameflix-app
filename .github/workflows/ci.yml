@@ -26,15 +26,21 @@ jobs:
           java-version: 17
           cache: maven
 
-      - name: Make mvnw executable
+      - name: Make mvnw executable (fix CRLF on Linux)
         run: |
           sed -i 's/\r$//' mvnw
           chmod +x mvnw
 
-      - name: Build with Maven (skip tests)
+      - name: Build JAR (skip tests)
         run: ./mvnw -B clean package -DskipTests
 
-      - name: Build Docker image
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameflix-jar
+          path: GameFlix/GameFlix/target/*.jar
+
+      - name: Build Docker image (no push)
         uses: docker/build-push-action@v6
         with:
           context: GameFlix/GameFlix
