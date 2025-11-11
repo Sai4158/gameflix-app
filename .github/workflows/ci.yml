@@ -26,6 +26,11 @@ jobs:
           java-version: 17
           cache: maven
 
+      - name: Make mvnw executable
+        run: |
+          sed -i 's/\r$//' mvnw
+          chmod +x mvnw
+
       - name: Build with Maven (skip tests)
         run: ./mvnw -B clean package -DskipTests
 
