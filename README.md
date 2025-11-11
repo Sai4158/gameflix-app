@@ -1,7 +1,17 @@
 # GameFlix Backend - Dockerized (Spring Boot)
 ---
 
-## 🚀 Quick Start
+## CI (GitHub Actions)
+Every push to `main` triggers a CI run that:
+1) Sets up JDK 17
+2) Builds the Spring Boot JAR with Maven (`./mvnw clean package -DskipTests`)
+3) Uploads the JAR as a workflow artifact
+4) Builds a Docker image from `Dockerfile`
+
+See `.github/workflows/ci.yml`. Download the JAR from the run’s **Artifacts** section.
+
+
+## Quick Start
 
 ```bash
 # 1) Build the Application JAR
@@ -17,7 +27,7 @@ docker-compose up --build
 
 ---
 
-## 🧰 Requirements
+## Requirements
 
 - **Docker** (Desktop or Engine)
 - **Maven Wrapper** in your project (`mvnw`)
@@ -26,7 +36,7 @@ docker-compose up --build
 ---
 
 
-## 🧪 Verify & Operate
+## Verify & Operate
 
 You should see:
 
@@ -55,7 +65,7 @@ docker-compose up --build -d
 
 ---
 
-## 🌐 Test the Container
+## Test the Container
 
 Use **Postman** to test your API endpoints while the container is running.
 
@@ -88,7 +98,7 @@ Use **Postman** to test your API endpoints while the container is running.
 
 ---
 
-## 📦 Code Snippets 
+## Code Snippets 
 
 ### `Dockerfile` (Spring Boot)
 
