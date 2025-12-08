@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameFlix NOW</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nvidia-green: #76b900;
+            --bg-dark: #121212;
+            --bg-card: #1f1f1f;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --border: #333333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            /* Subtle dark gradient background */
+            background: radial-gradient(circle at top center, #1a2e1a 0%, #121212 60%);
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(18, 18, 18, 0.95);
+            border-bottom: 1px solid var(--nvidia-green);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+        
+        .logo span {
+            color: var(--nvidia-green);
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            border-radius: 2px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--nvidia-green);
+            color: var(--nvidia-green);
+        }
+
+        /* Full Width Container */
+        .container {
+            width: 100%;
+            padding: 2rem 3rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-left: 4px solid var(--nvidia-green);
+            padding-left: 1rem;
+        }
+
+        /* Grid - Full Width Responsive */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Library Specific Grid - Larger & Premium */
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .library-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .library-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: var(--nvidia-green);
+            box-shadow: 0 20px 50px rgba(118, 185, 0, 0.15);
+        }
+
+        .library-card .card-image-container {
+            padding-top: 56.25%; /* 16:9 */
+            position: relative;
+            width: 100%;
+        }
+
+        .library-card .card-content {
+            padding: 1.5rem;
+            background: linear-gradient(to bottom, #222, #1a1a1a);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .library-card .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .library-card .game-meta {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .library-card .btn-play {
+            padding: 1rem;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            border-radius: 6px;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(118, 185, 0, 0.3);
+        }
+
+        .library-card .btn-play:hover {
+            box-shadow: 0 6px 20px rgba(118, 185, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Game Card */
+        .game-card {
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .game-card:hover {
+            transform: scale(1.02);
+            border-color: var(--nvidia-green);
+            box-shadow: 0 0 15px rgba(118, 185, 0, 0.2);
+            z-index: 10;
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 140%; /* Portrait */
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .my-game-card .card-image-container {
+            padding-top: 56.25%; /* Landscape for library */
+        }
+
+        .game-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-main);
+        }
+
+        .game-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 0.7rem;
+            background: var(--nvidia-green);
+            border: none;
+            border-radius: 2px;
+            color: black;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary:hover {
+            background: #8cd600;
+        }
+        
+        .btn-play {
+            background: var(--nvidia-green);
+            color: black;
+        }
+
+        /* 3-Dot Menu */
+        .menu-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 20;
+        }
+
+        .menu-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: background 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: var(--nvidia-green);
+            color: black;
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 4px;
+            width: 160px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .menu-container.active .menu-dropdown {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 0.8rem 1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: left;
+            background: none;
+            border: none;
+            width: 100%;
+        }
+
+        .menu-item:hover {
+            background: #3d3d3d;
+        }
+
+        .menu-item.danger {
+            color: #ff4d4d;
+        }
+        
+        .menu-item.danger:hover {
+            background: rgba(255, 77, 77, 0.1);
+        }
+
+        /* --- Details View (Full Screen) --- */
+        .view-container {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .view-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .details-header {
+            height: 60vh;
+            position: relative;
+            background-color: #000;
+            overflow: hidden;
+            border-bottom: 2px solid var(--nvidia-green);
+        }
+        
+        .details-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+        
+        .details-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 4rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 3rem;
+            background: linear-gradient(to top, #121212 10%, transparent);
+        }
+        
+        .details-poster {
+            width: 250px;
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 1px solid #444;
+        }
+        
+        .details-info h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        
+        .details-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        
+        .tech-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            border: 1px solid #444;
+        }
+        
+        .rating-badge {
+            color: var(--nvidia-green);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .details-body {
+            padding: 3rem 4rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 4rem;
+        }
+        
+        .details-desc h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--nvidia-green);
+            text-transform: uppercase;
+        }
+        
+        .details-desc p {
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .purchase-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 2rem;
+        }
+        
+        .purchase-option {
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #252525;
+        }
+        
+        .purchase-option:hover {
+            border-color: var(--nvidia-green);
+            background: #2a2a2a;
+        }
+        
+        .purchase-option.selected {
+            border-color: var(--nvidia-green);
+            background: rgba(118, 185, 0, 0.1);
+            box-shadow: 0 0 0 1px var(--nvidia-green);
+        }
+        
+        .option-price {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--text-main);
+        }
+        
+        .option-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #444;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--nvidia-green);
+            color: var(--nvidia-green);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .spinner {
+            border: 4px solid #333;
+            border-top-color: var(--nvidia-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom Modal */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .custom-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Ensure Confirm Modal is always on top */
+        #confirmModal {
+            z-index: 3000 !important;
+        }
+
+        .custom-modal {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-top: 4px solid var(--nvidia-green);
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+        }
+
+        .custom-modal-overlay.active .custom-modal {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .modal-message {
+            color: #ccc;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 0.8rem 2rem;
+            background: var(--nvidia-green);
+            color: black;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: #8cd600;
+        }
+
+        .modal-close-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #666;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .modal-close-icon:hover {
+            color: white;
+        }
+
+        /* Connecting Animation */
+        .connecting-steps {
+            text-align: left;
+            margin-top: 1.5rem;
+            background: #111;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--nvidia-green);
+            height: 120px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .step-item {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s;
+        }
+
+        .step-item.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="view-container active">
+        <nav class="navbar">
+            <div class="logo">GAME<span>FLIX</span> NOW</div>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        </nav>
+
+        <div class="container">
+            
+            <!-- My Library -->
+            <div class="section-header">
+                <h2 class="section-title">My Library</h2>
+            </div>
+            <div class="library-grid" id="myGamesGrid">
+                <!-- User games populated here -->
+            </div>
+
+            <!-- Catalog -->
+            <div class="section-header">
+                <h2 class="section-title" style="margin-top: 3rem;">Available Games</h2>
+            </div>
+            <div class="games-grid" id="catalogGrid">
+                <!-- Catalog games populated here -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Details/Purchase View -->
+    <div id="detailsView" class="view-container">
+        <div class="details-header">
+            <button class="back-btn" onclick="showDashboard()">← Back to Library</button>
+            <img id="detailBg" src="" class="details-bg">
+            <div class="details-content">
+                <img id="detailPoster" src="" class="details-poster">
+                <div class="details-info">
+                    <h1 id="detailTitle">Game Title</h1>
+                    <div class="details-meta">
+                        <span id="detailGenre">Action</span>
+                        <span class="separator">•</span>
+                        <span id="detailPlatform">Ultra Cloud</span>
+                        <span class="separator">•</span>
+                        <span class="rating" onclick="showReviews()" style="cursor: pointer; color: #ffd700;">
+                            ★★★★★ <span style="color: #ccc; font-size: 0.9rem; margin-left: 5px;">(4.9)</span>
+                        </span>
+                    </div>
+                    
+                    <p id="detailDescription" style="color: #ccc; line-height: 1.6; margin-bottom: 2rem; max-width: 600px;">
+                        Experience the ultimate gaming adventure with stunning graphics and immersive gameplay.
+                    </p>
+
+                    <div class="purchase-options">
+                        <span class="tech-badge">ULTRA RES</span>
+                        <span class="tech-badge">AI ENHANCED</span>
+                        <span class="tech-badge">4K 120FPS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="details-body">
+            <div class="details-desc">
+                <h3>Game Overview</h3>
+                <p>Stream this title instantly from our GameFlix Ultra Servers. Experience ultra-low latency, high-fidelity graphics, and AI-powered performance. No downloads, no patches, just play.</p>
+                <p>This game is optimized for cloud streaming, delivering console-quality performance on any device. Supports HDR10 and Dolby Atmos for immersive gameplay.</p>
+                
+                <h3 style="margin-top: 2rem; font-size: 1.2rem;">System Requirements</h3>
+                <p style="font-size: 0.9rem; color: #888;">None. We handle the processing.</p>
+            </div>
+            
+            <div class="purchase-card">
+                <h3 style="margin-bottom: 1.5rem; color: white; text-transform: uppercase;">Select Plan</h3>
+                
+                <div class="purchase-option" onclick="selectOption('Rent')">
+                    <div>
+                        <div class="option-price">$4.99</div>
+                        <div class="option-label">48-Hour Pass</div>
+                    </div>
+                </div>
+                
+                <div class="purchase-option" onclick="selectOption('Buy')">
+                    <div>
+                        <div class="option-price">$59.99</div>
+                        <div class="option-label">Lifetime Access</div>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" style="margin-top: 1rem; padding: 1.2rem; font-size: 1.1rem;" onclick="confirmPurchase()">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Generic Modal -->
+    <div class="custom-modal-overlay" id="genericModal">
+        <div class="custom-modal">
+            <div class="modal-close-icon" onclick="closeModal('genericModal')">✕</div>
+            <h2 class="modal-title" id="genericModalTitle">Notification</h2>
+            <p class="modal-message" id="genericModalMessage">Message goes here</p>
+            <button class="modal-btn" onclick="closeModal('genericModal')">OK</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div class="custom-modal-overlay" id="confirmModal">
+        <div class="custom-modal">
+            <h2 class="modal-title" id="confirmModalTitle">Confirm Action</h2>
+            <p class="modal-message" id="confirmModalMessage">Are you sure?</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="modal-btn" id="confirmBtnYes">Yes</button>
+                <button class="modal-btn" onclick="closeModal('confirmModal')" style="background: #333; color: white;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Play Simulation Modal -->
+    <div class="custom-modal-overlay" id="playModal">
+        <div class="custom-modal" style="max-width: 500px;">
+            <div class="modal-close-icon" onclick="cancelPlay()">✕</div>
+            <h2 class="modal-title">Launching Session</h2>
+            <div class="spinner" style="margin: 0 auto 1.5rem;"></div>
+            <p class="modal-message" id="playStatus">Initializing secure connection...</p>
+            
+            <div class="connecting-steps" id="playConsole">
+                <!-- Steps injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Details Modal -->
+    <div id="gameDetailsModal" class="custom-modal-overlay">
+        <div class="custom-modal" style="max-width: 500px; text-align: left;">
+            <div class="modal-header">
+                <h3 id="detailsModalTitle">Game Details</h3>
+                <button class="close-modal-btn" onclick="closeModal('gameDetailsModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                <img id="detailsModalImg" src="" alt="Game Art" style="width: 120px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                <div style="flex-grow: 1;">
+                    <h4 id="detailsModalGameTitle" style="margin-bottom: 0.5rem; font-size: 1.4rem; color: var(--nvidia-green);"></h4>
+                    <div style="display: grid; gap: 0.5rem; font-size: 0.95rem; color: #ccc;">
+                        <div><strong>Status:</strong> <span id="detailsModalStatus" style="color: white;"></span></div>
+                        <div><strong>Platform:</strong> <span id="detailsModalPlatform"></span></div>
+                        <div><strong>Genre:</strong> <span id="detailsModalGenre"></span></div>
+                        <div id="detailsModalDateRow"><strong>Date:</strong> <span id="detailsModalDate"></span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 1.5rem; text-align: right;">
+                <button class="btn-primary" onclick="closeModal('gameDetailsModal')">CLOSE</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Reviews Modal -->
+    <div id="reviewsModal" class="custom-modal-overlay">
+        <div class="custom-modal" style="max-width: 600px; text-align: left;">
+            <div class="modal-header">
+                <h3 id="reviewsModalTitle">User Reviews</h3>
+                <button class="close-modal-btn" onclick="closeModal('reviewsModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="reviewsList" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <!-- Reviews injected here -->
+            </div>
+            <div class="modal-footer" style="margin-top: 1.5rem; text-align: right;">
+                <button class="btn-primary" onclick="closeModal('reviewsModal')">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <h2 style="color: white; margin-top: 1rem;">PROCESSING...</h2>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+        
+        // Updated Catalog with Reliable Images and Descriptions
+        const CATALOG = [
+            { title: "Elden Ring", genre: "RPG", platform: "Ultra Cloud", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900.jpg", description: "Journey through the Lands Between, a new fantasy world created by Hidetaka Miyazaki and George R. R. Martin. Unravel the mysteries of the Elden Ring." },
+            { title: "God of War Ragnarök", genre: "Action", platform: "Ultra Cloud", imageUrl: "https://image.api.playstation.com/vulcan/ap/rnd/202207/1210/4xJ8XB3bi888QTLZYdl7Oi0s.png", description: "Kratos and Atreus must journey to each of the Nine Realms in search of answers as Asgardian forces prepare for a prophesied battle that will end the world." },
+            { title: "Cyberpunk 2077", genre: "RPG", platform: "Ray Tracing", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900.jpg", description: "Cyberpunk 2077 is an open-world, action-adventure RPG set in the megalopolis of Night City, where you play as a cyberpunk mercenary wrapped up in a do-or-die fight for survival." },
+            { title: "The Witcher 3", genre: "RPG", platform: "Ultra Cloud", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/292030/library_600x900.jpg", description: "You are Geralt of Rivia, mercenary monster slayer. Before you stands a war-torn, monster-infested continent you can explore at will. Your current contract? Tracking down the Child of Prophecy." },
+            { title: "Red Dead Redemption 2", genre: "Adventure", platform: "4K HDR", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900.jpg", description: "Winner of over 175 Game of the Year Awards and recipient of over 250 perfect scores, RDR2 is the epic tale of outlaw Arthur Morgan and the infamous Van der Linde gang, on the run across America at the dawn of the modern age." },
+            { title: "Minecraft", genre: "Sandbox", platform: "Ray Tracing", imageUrl: "https://assets.nintendo.com/image/upload/q_auto/f_auto/store/software/switch/70070000016597/0a33bcaba879403460afe2ff2aafaaefeede964e0fc11a430f71077867cc87f1", description: "Explore infinite worlds and build everything from the simplest of homes to the grandest of castles. Play in creative mode with unlimited resources or mine deep into the world in survival mode." },
+            { title: "Grand Theft Auto V", genre: "Action", platform: "4K 60FPS", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900.jpg", description: "When a young street hustler, a retired bank robber and a terrifying psychopath find themselves entangled with some of the most frightening and deranged elements of the criminal underworld, the U.S. government and the entertainment industry, they must pull off a series of dangerous heists." },
+            { title: "Fortnite", genre: "Battle Royale", platform: "240 FPS", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBt7PxHbURQ8IYYcDVZ7iCS4-P0siDuW_RWg&s", description: "Create, play, and battle with friends for free in Fortnite. Be the last player standing in Battle Royale and Zero Build, experience a concert or live event, or discover over a million creator made games." },
+            { title: "Call of Duty: MW3", genre: "Shooter", platform: "240 FPS", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2519060/library_600x900.jpg", description: "In the direct sequel to the record-breaking Call of Duty: Modern Warfare II, Captain Price and Task Force 141 face off against the ultimate threat." },
+            { title: "Spider-Man 2", genre: "Action", platform: "Ray Tracing", imageUrl: "https://culturedvultures.com/wp-content/uploads/2018/11/Spider-Man-3.jpg", description: "Spider-Men, Peter Parker and Miles Morales, return for an exciting new adventure in the critically acclaimed Marvel’s Spider-Man franchise." },
+            { title: "Zelda: TOTK", genre: "Adventure", platform: "Cloud", imageUrl: "https://upload.wikimedia.org/wikipedia/en/f/fb/The_Legend_of_Zelda_Tears_of_the_Kingdom_cover.jpg", description: "In this sequel to The Legend of Zelda: Breath of the Wild, you’ll decide your own path through the sprawling landscapes of Hyrule and the mysterious islands floating in the vast skies above." },
+            { title: "Baldur's Gate 3", genre: "RPG", platform: "Turn-Based", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1086940/library_600x900.jpg", description: "Baldur’s Gate 3 is a story-rich, party-based RPG set in the universe of Dungeons & Dragons, where your choices shape a tale of fellowship and betrayal, survival and sacrifice, and the lure of absolute power." },
+            { title: "Valorant", genre: "Shooter", platform: "Low Latency", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6FkzEHhY2mzr4LHMCC4Ov1sOUZAQ384ciKg&s", description: "Blend your style and experience on a global, competitive stage. You have 13 rounds to attack and defend your side using sharp gunplay and tactical abilities." },
+            { title: "League of Legends", genre: "MOBA", platform: "Low Latency", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/League_of_Legends_2019_vector.svg/1200px-League_of_Legends_2019_vector.svg.png", description: "Team up with friends and test your skills in 5v5 MOBA combat. All you need is a computer and a will to win." },
+            { title: "Overwatch 2", genre: "Shooter", platform: "Low Latency", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2357570/library_600x900.jpg", description: "Overwatch 2 is a free-to-play, team-based action game set in the optimistic future, where every match is the ultimate 5v5 battlefield brawl." },
+            { title: "Apex Legends", genre: "Battle Royale", platform: "Low Latency", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1172470/library_600x900.jpg", description: "Apex Legends is the award-winning, free-to-play Hero Shooter from Respawn Entertainment. Master an ever-growing roster of legendary characters with powerful abilities." },
+            { title: "Hogwarts Legacy", genre: "RPG", platform: "Ultra Cloud", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/990080/library_600x900.jpg", description: "Hogwarts Legacy is an immersive, open-world action RPG set in the world first introduced in the Harry Potter books." },
+            { title: "Starfield", genre: "RPG", platform: "4K HDR", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1716740/library_600x900.jpg", description: "Starfield is the first new universe in over 25 years from Bethesda Game Studios, the award-winning creators of The Elder Scrolls V: Skyrim and Fallout 4." },
+            { title: "Resident Evil 4", genre: "Horror", platform: "Ray Tracing", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2050650/library_600x900.jpg", description: "Survival is just the beginning. Six years have passed since the biological disaster in Raccoon City. Agent Leon S. Kennedy, one of the survivors of the incident, has been sent to rescue the president's kidnapped daughter." },
+            { title: "Final Fantasy XVI", genre: "RPG", platform: "4K HDR", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYmxReeo9KdYzdz1ZbmyTBDfRSPlIO_AJ0qg&s", description: "An epic dark fantasy where the fates of the land are decided by the mighty Eikons and the Dominants who wield them." },
+            { title: "FIFA 24", genre: "Sports", platform: "4K 60FPS", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900.jpg", description: "EA SPORTS FC 24 welcomes you to The World’s Game: the most true-to-football experience ever with HyperMotionV, PlayStyles optimised by Opta, and a revolutionised Frostbite Engine." },
+            { title: "NBA 2K24", genre: "Sports", platform: "4K 60FPS", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2338770/library_600x900.jpg", description: "Grab your squad and experience the past, present, and future of hoops culture in NBA 2K24. Enjoy loads of pure, unadulterated action and limitless personalized MyPLAYER options." },
+            { title: "Forza Horizon 5", genre: "Racing", platform: "Ray Tracing", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1551360/library_600x900.jpg", description: "Your Ultimate Horizon Adventure awaits! Explore the vibrant and ever-evolving open world landscapes of Mexico with limitless, fun driving action in hundreds of the world’s greatest cars." },
+            { title: "Gran Turismo 7", genre: "Racing", platform: "4K HDR", imageUrl: "https://m.media-amazon.com/images/I/7196Yr1ChkL._AC_UF1000,1000_QL80_.jpg", description: "Gran Turismo 7 brings together the very best features of the Real Driving Simulator. Whether you’re a competitive or casual racer, collector, tuner, livery designer, or photographer – find your line with a staggering collection of game modes." },
+            { title: "Among Us", genre: "Social", platform: "Cloud", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/945360/library_600x900.jpg", description: "An online and local party game of teamwork and betrayal for 4-15 players... in space!" },
+            { title: "Stardew Valley", genre: "Sim", platform: "Cloud", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/413150/library_600x900.jpg", description: "You've inherited your grandfather's old farm plot in Stardew Valley. Armed with hand-me-down tools and a few coins, you set out to begin your new life." },
+            { title: "Hades", genre: "Roguelike", platform: "120 FPS", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145360/library_600x900.jpg", description: "Defy the god of the dead as you hack and slash out of the Underworld in this rogue-like dungeon crawler from the creators of Bastion, Transistor, and Pyre." },
+            { title: "Rocket League", genre: "Sports", platform: "120 FPS", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/252950/library_600x900.jpg", description: "Rocket League is a high-powered hybrid of arcade-style soccer and vehicular mayhem with easy-to-understand controls and fluid, physics-driven competition." },
+            { title: "Destiny 2", genre: "Shooter", platform: "4K HDR", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1085660/library_600x900.jpg", description: "Dive into the world of Destiny 2 to explore the mysteries of the solar system and experience responsive first-person shooter combat." },
+            { title: "Assassin's Creed Mirage", genre: "Action", platform: "Ultra Cloud", imageUrl: "https://image.api.playstation.com/cdn/UP0001/CUSA00010_00/US4NCAJYPPkVtniLblOOTn0G4Uy293sB.png", description: "Experience the story of Basim, a cunning street thief with nightmarish visions, seeking answers and justice as he navigates the bustling streets of ninth-century Baghdad." },
+            { title: "Mortal Kombat 1", genre: "Fighting", platform: "120 FPS", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1971870/library_600x900.jpg", description: "Discover a reborn Mortal Kombat Universe created by the Fire God Liu Kang. Mortal Kombat 1 ushers in a new era of the iconic franchise with a new fighting system, game modes, and fatalities!" },
+            { title: "Street Fighter 6", genre: "Fighting", platform: "Low Latency", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1364780/library_600x900.jpg", description: "Here comes Capcom’s newest challenger! Street Fighter 6 represents the next evolution of the Street Fighter series." },
+            { title: "Diablo IV", genre: "RPG", platform: "Ultra Cloud", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2344520/library_600x900.jpg", description: "Diablo IV is the ultimate action RPG experience with endless evil to slaughter, countless abilities to master, nightmarish dungeons, and legendary loot." },
+            { title: "The Last of Us Part I", genre: "Action", platform: "Ultra Cloud", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1888930/library_600x900.jpg", description: "Experience the emotional storytelling and unforgettable characters in The Last of Us, winner of over 200 Game of the Year awards." },
+            { title: "Horizon Forbidden West", genre: "Adventure", platform: "4K HDR", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2420110/library_600x900.jpg", description: "Join Aloy as she braves the Forbidden West – a majestic but dangerous frontier that conceals mysterious new threats." },
+            { title: "Ratchet & Clank: Rift Apart", genre: "Platformer", platform: "Ray Tracing", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1895880/library_600x900.jpg", description: "Blast your way through an interdimensional adventure. Go dimension-hopping with Ratchet and Clank as they take on an evil emperor from another reality." },
+            { title: "Returnal", genre: "Roguelike", platform: "Ray Tracing", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1649240/library_600x900.jpg", description: "Break the cycle as this award-winning third-person shooter brings bullet hell action to PC. Selene’s roguelike odyssey arrives with a suite of arresting graphical and performance-based enhancements." },
+            { title: "Demon's Souls", genre: "RPG", platform: "4K HDR", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVJJaNzFFXssLsxnzT3JmTDJaxvHx3YqzHRA&s", description: "Entirely rebuilt from the ground up and masterfully enhanced, this remake introduces the horrors of a fog-laden, dark fantasy land to a whole new generation of gamers." },
+            { title: "Ghost of Tsushima", genre: "Action", platform: "4K HDR", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900.jpg", description: "Uncover the hidden wonders of Tsushima in this open-world action adventure. Forge a new path and wage an unconventional war for the freedom of Tsushima." },
+            { title: "Sea of Thieves", genre: "Adventure", platform: "4K HDR", imageUrl: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1172620/library_600x900.jpg", description: "Sea of Thieves offers the essential pirate experience, from sailing and fighting to exploring and looting – everything you need to live the pirate life and become a legend in your own right." }
+        ];
+
+        let selectedGame = null;
+        let selectedPurchaseType = null;
+        let myGames = [];
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        function getAuthHeaders() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return null;
+            return {
+                'Authorization': 'Basic ' + btoa(user.username + ':' + user.password),
+                'Content-Type': 'application/json'
+            };
+        }
+
+        // --- API Calls ---
+
+        async function fetchMyGames() {
+            const headers = getAuthHeaders();
+            if (!headers) {
+                logout();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/games`, { headers });
+                if (response.ok) {
+                    myGames = await response.json();
+                    renderMyGames();
+                    renderCatalog();
+                } else if (response.status === 401) {
+                    // Fix: Clear session and redirect on 401 to prevent loop
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error fetching games:', error);
+            }
+        }
+
+        async function addToLibrary(gameData) {
+            try {
+                // Ensure imageUrl is present
+                if (!gameData.imageUrl) {
+                    const catalogItem = CATALOG.find(c => c.title === gameData.title);
+                    if (catalogItem) gameData.imageUrl = catalogItem.imageUrl;
+                }
+
+                const response = await fetch(`${API_URL}/api/games`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(gameData)
+                });
+                
+                if (response.ok) {
+                    fetchMyGames();
+                    showCustomModal('Success', `${gameData.title} has been added to your library!`);
+                } else {
+                    if (response.status === 401) {
+                        logout();
+                    } else {
+                        showCustomModal('Error', 'Failed to add game. Please try again.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding game:', error);
+                showCustomModal('Error', 'Network error occurred.');
+            }
+        }
+
+        function deleteGame(id) {
+            showCustomConfirm('Remove Game', 'Are you sure you want to remove this game from your library?', async () => {
+                try {
+                    const response = await fetch(`${API_URL}/api/games/${id}`, {
+                        method: 'DELETE',
+                        headers: getAuthHeaders()
+                    });
+                    
+                    if (response.ok) {
+                        fetchMyGames();
+                        showCustomModal('Success', 'Game removed from library.');
+                    } else {
+                        showCustomModal('Error', 'Failed to remove game.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting game:', error);
+                    showCustomModal('Error', 'Network error occurred.');
+                }
+            });
+        }
+
+        // --- UI Rendering ---
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
+
+            CATALOG.forEach(game => {
+                const isOwned = myGames.some(g => g.title === game.title);
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.onclick = () => {
+                    if (!isOwned) showDetails(game);
+                };
+                
+                card.innerHTML = `
+                    <div class="card-image-container">
+                        <img src="${game.imageUrl}" class="game-image" alt="${game.title}" onerror="this.onerror=null;this.src='https://placehold.co/600x900/222/76b900?text=${encodeURIComponent(game.title)}'">
+                    </div>
+                    <div class="card-content">
+                        <div class="game-title">${game.title}</div>
+                        <div class="game-meta">
+                            <span>${game.genre}</span>
+                            <span>${game.platform}</span>
+                        </div>
+                        <button class="btn-primary" 
+                                style="${isOwned ? 'background: #333; color: #888; cursor: default;' : ''}">
+                            ${isOwned ? 'IN LIBRARY' : 'VIEW DETAILS'}
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderMyGames() {
+            const grid = document.getElementById('myGamesGrid');
+            grid.innerHTML = '';
+
+            if (myGames.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Your library is empty. Start your cloud gaming journey below.</p>';
+                return;
+            }
+
+            myGames.forEach(game => {
+                // Robust Image Handling: If DB has no image, find it in Catalog
+                let displayImage = game.imageUrl;
+                if (!displayImage || displayImage === 'null' || displayImage === '') {
+                    const catalogItem = CATALOG.find(c => c.title === game.title);
+                    if (catalogItem) {
+                        displayImage = catalogItem.imageUrl;
+                    } else {
+                        displayImage = 'https://via.placeholder.com/300x450?text=Game+Image';
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = 'library-card';
+                card.innerHTML = `
+                    <div class="menu-container" onclick="toggleMenu(this, event)">
+                        <button class="menu-btn" style="background: rgba(0,0,0,0.8);">⋮</button>
+                        <div class="menu-dropdown">
+                            <button class="menu-item" onclick="showGameDetails(${game.id})">Game Details</button>
+                            <button class="menu-item danger" onclick="deleteGame(${game.id})">Remove from Library</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-image-container">
+                        <img src="${displayImage}" class="game-image" alt="${game.title}" onerror="this.onerror=null;this.src='https://placehold.co/600x900/222/76b900?text=${encodeURIComponent(game.title)}'">
+                        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <div class="game-title">${game.title}</div>
+                            <div class="game-meta">
+                                <span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">${game.genre}</span>
+                                <span style="color: var(--nvidia-green); font-weight: 600;">${game.status === 'Rent' ? 'RENTED' : 'OWNED'}</span>
+                            </div>
+                        </div>
+                        <button class="btn-primary btn-play" onclick="playGame('${game.title}')">
+                            <span style="margin-right: 8px;">▶</span> PLAY NOW
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+                grid.appendChild(card);
+            });
+        }
+        
+        function toggleMenu(container, event) {
+            event.stopPropagation();
+            document.querySelectorAll('.menu-container.active').forEach(el => {
+                if (el !== container) el.classList.remove('active');
+            });
+            container.classList.toggle('active');
+        }
+        
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.menu-container.active').forEach(el => el.classList.remove('active'));
+        });
+
+        // --- Modal Logic ---
+
+        function showCustomConfirm(title, message, onConfirm) {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalMessage').textContent = message;
+            
+            const yesBtn = document.getElementById('confirmBtnYes');
+            // Remove old event listeners to prevent stacking
+            const newBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newBtn, yesBtn);
+            
+            newBtn.addEventListener('click', () => {
+                onConfirm();
+                closeModal('confirmModal');
+            });
+            
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        let playInterval;
+        
+        function playGame(title) {
+            const modal = document.getElementById('playModal');
+            const consoleDiv = document.getElementById('playConsole');
+            const status = document.getElementById('playStatus');
+            
+            modal.classList.add('active');
+            consoleDiv.innerHTML = '';
+            status.textContent = `Initializing session for ${title}...`;
+            
+            const steps = [
+                "Connecting to GameFlix Ultra Server...",
+                "Authenticating User...",
+                "Allocating RTX 4080 Rig...",
+                "Loading Game Assets...",
+                "Optimizing Network Stream...",
+                "Launching Game..."
+            ];
+            
+            let i = 0;
+            playInterval = setInterval(() => {
+                if (i < steps.length) {
+                    const p = document.createElement('div');
+                    p.className = 'step-item';
+                    p.textContent = `> ${steps[i]}`;
+                    consoleDiv.appendChild(p);
+                    
+                    // Trigger reflow
+                    void p.offsetWidth;
+                    p.classList.add('active');
+                    
+                    // Auto scroll
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(playInterval);
+                    status.textContent = "Session Ready!";
+                    setTimeout(() => {
+                        closeModal('playModal');
+                        // Here we would actually redirect to the game stream
+                        showCustomModal("Game Launched", "Your cloud session is running in a new window.");
+                    }, 1000);
+                }
+            }, 800);
+        }
+
+        function cancelPlay() {
+            showCustomConfirm('Cancel Session', 'Cancel connection request?', () => {
+                clearInterval(playInterval);
+                closeModal('playModal');
+            });
+        }
+
+        function showReviews() {
+            const reviews = [
+                { user: "GamerPro99", rating: 5, text: "Absolutely stunning visuals and gameplay. A masterpiece!" },
+                { user: "CloudWalker", rating: 5, text: "Runs perfectly on GameFlix Ultra. Zero latency." },
+                { user: "RetroFan", rating: 4, text: "Great story, but the tutorial was a bit long." },
+                { user: "SpeedRunnerX", rating: 5, text: "Best game of the year hands down." },
+                { user: "NoobMaster69", rating: 5, text: "Incredible graphics. My new favorite game." },
+                { user: "StrategyKing", rating: 4, text: "Deep mechanics and rewarding progression." },
+                { user: "CasualPlayer", rating: 5, text: "So much fun to play with friends!" }
+            ];
+
+            const list = document.getElementById('reviewsList');
+            list.innerHTML = '';
+
+            // Randomize and pick 3-5 reviews
+            const count = Math.floor(Math.random() * 3) + 3;
+            const shuffled = reviews.sort(() => 0.5 - Math.random()).slice(0, count);
+
+            shuffled.forEach(r => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '1rem';
+                div.style.borderBottom = '1px solid #333';
+                div.style.paddingBottom = '1rem';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+                        <span style="color: var(--nvidia-green); font-weight: bold;">${r.user}</span>
+                        <span style="color: #ffd700;">${'★'.repeat(r.rating)}</span>
+                    </div>
+                    <div style="color: #ccc; font-size: 0.9rem;">${r.text}</div>
+                `;
+                list.appendChild(div);
+            });
+
+            document.getElementById('reviewsModal').classList.add('active');
+        }
+
+        function showGameDetails(id) {
+            const game = myGames.find(g => g.id === id);
+            if (!game) return;
+
+            // Robust Image Handling for Modal
+            let displayImage = game.imageUrl;
+            if (!displayImage || displayImage === 'null' || displayImage === '') {
+                const catalogItem = CATALOG.find(c => c.title === game.title);
+                if (catalogItem) displayImage = catalogItem.imageUrl;
+                else displayImage = 'https://placehold.co/600x900/222/76b900?text=' + encodeURIComponent(game.title);
+            }
+
+            document.getElementById('detailsModalImg').src = displayImage;
+            document.getElementById('detailsModalGameTitle').textContent = game.title;
+            
+            const statusText = game.status === 'Rent' ? 'RENTED (48-Hour Pass)' : 'OWNED (Lifetime Access)';
+            document.getElementById('detailsModalStatus').textContent = statusText;
+            
+            document.getElementById('detailsModalPlatform').textContent = game.platform || 'N/A';
+            document.getElementById('detailsModalGenre').textContent = game.genre || 'N/A';
+            
+            const dateLabel = game.status === 'Rent' ? 'Rented On:' : 'Purchased On:';
+            document.getElementById('detailsModalDateRow').innerHTML = `<strong>${dateLabel}</strong> <span style="color: white;">${game.purchaseDate || 'Unknown'}</span>`;
+
+            document.getElementById('gameDetailsModal').classList.add('active');
+            
+            // Close menu if open
+            document.querySelectorAll('.menu-container.active').forEach(el => el.classList.remove('active'));
+        }
+
+        // --- View Switching ---
+
+        function showDashboard() {
+            document.getElementById('detailsView').classList.remove('active');
+            document.getElementById('dashboardView').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showDetails(game) {
+            selectedGame = game;
+            selectedPurchaseType = null;
+            
+            // Populate Details
+            document.getElementById('detailBg').src = game.imageUrl;
+            document.getElementById('detailPoster').src = game.imageUrl;
+            document.getElementById('detailTitle').textContent = game.title;
+            document.getElementById('detailGenre').textContent = game.genre;
+            document.getElementById('detailPlatform').textContent = game.platform;
+            document.getElementById('detailDescription').textContent = game.description || "Experience the ultimate gaming adventure with stunning graphics and immersive gameplay.";
+            
+            // Reset selection styling
+            document.querySelectorAll('.purchase-option').forEach(el => el.classList.remove('selected'));
+            
+            document.getElementById('dashboardView').classList.remove('active');
+            document.getElementById('detailsView').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function selectOption(type) {
+            selectedPurchaseType = type;
+            const options = document.querySelectorAll('.purchase-option');
+            options.forEach(el => el.classList.remove('selected'));
+            
+            // Find the clicked element's parent .purchase-option if clicked on child
+            event.currentTarget.classList.add('selected');
+        }
+
+        function confirmPurchase() {
+            if (!selectedPurchaseType) {
+                alert('Please select a plan.');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loadingOverlay').classList.add('active');
+            
+            // Fake delay
+            setTimeout(() => {
+                if (!selectedGame) return;
+                const gameData = { ...selectedGame, status: selectedPurchaseType };
+                addToLibrary(gameData);
+                
+                document.getElementById('loadingOverlay').classList.remove('active');
+                showDashboard();
+            }, 2000);
+        }
+
+        // Init
+        if (!localStorage.getItem('user')) {
+            window.location.href = '/';
+        } else {
+            fetchMyGames();
+        }
+
+    </script>
+</body>
+</html>
