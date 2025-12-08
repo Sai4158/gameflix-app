@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameFlix - Join Today</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nvidia-green: #76b900;
+            --bg-dark: #0b0b0b;
+            --bg-card: #1a1a1a;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden; /* Prevent scrolling on split screen */
+        }
+
+        /* Split Layout */
+        .split-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Left Panel - Intro */
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+        }
+        
+        .brand-logo {
+            position: absolute;
+            top: 3rem;
+            left: 4rem;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            z-index: 20;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .brand-logo span {
+            color: var(--nvidia-green);
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, transparent 80%, var(--bg-dark) 100%);
+        }
+
+        .intro-content {
+            position: relative;
+            z-index: 10;
+            max-width: 600px;
+        }
+
+        .intro-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+        
+        .intro-title span {
+            color: var(--nvidia-green);
+        }
+
+        .intro-text {
+            font-size: 1.2rem;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .feature-icon {
+            color: var(--nvidia-green);
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Right Panel - Forms */
+        .right-panel {
+            flex: 1;
+            background: var(--bg-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border-top: 4px solid var(--nvidia-green);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .form-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--nvidia-green);
+            background: #2d2d2d;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: var(--nvidia-green);
+            border: none;
+            border-radius: 4px;
+            color: black;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: #8cd600;
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .toggle-link {
+            color: var(--nvidia-green);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .error-msg {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 0.8rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .split-container {
+                flex-direction: column;
+            }
+            .left-panel {
+                display: none; /* Hide intro on mobile for focus */
+            }
+            .right-panel {
+                height: 100vh;
+            }
+        }
+        /* Custom Modal */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .custom-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-modal {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-top: 4px solid var(--nvidia-green);
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .custom-modal-overlay.active .custom-modal {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .modal-message {
+            color: #ccc;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 0.8rem 2rem;
+            background: var(--nvidia-green);
+            color: black;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: #8cd600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="brand-logo">GAME<span>FLIX</span></div>
+            <div class="intro-content">
+                <h1 class="intro-title">PLAY <span>ANYWHERE</span><br>ANYTIME.</h1>
+                <p class="intro-text">
+                    Join the next generation of cloud gaming. Stream your favorite AAA titles in 4K resolution with GameFlix Ultra. No downloads, no waiting.
+                </p>
+                <ul class="feature-list">
+                    <li class="feature-item"><span class="feature-icon">✓</span> Unlimited Access to Top Titles</li>
+                    <li class="feature-item"><span class="feature-icon">✓</span> GameFlix Ultra Performance</li>
+                    <li class="feature-item"><span class="feature-icon">✓</span> Ultra-Low Latency Streaming</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div class="auth-card">
+                
+                <!-- Register Form (Default) -->
+                <form id="registerForm">
+                    <div class="form-header">
+                        <h2 class="form-title">Join Today</h2>
+                        <p class="form-subtitle">Create your free account to start playing</p>
+                    </div>
+                    
+                    <div class="error-msg" id="regError">Registration failed</div>
+                    
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" id="regUsername" placeholder="Choose a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="regPassword" placeholder="Create a password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Create Account</button>
+                    
+                    <p class="toggle-text">
+                        Already a member? <span class="toggle-link" onclick="toggleForms()">Log In</span>
+                    </p>
+                </form>
+
+                <!-- Login Form (Hidden) -->
+                <form id="loginForm" class="hidden">
+                    <div class="form-header">
+                        <h2 class="form-title">Welcome Back</h2>
+                        <p class="form-subtitle">Log in to access your cloud library</p>
+                    </div>
+
+                    <div class="error-msg" id="loginError">Invalid credentials</div>
+
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" id="loginUsername" placeholder="Enter your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Log In</button>
+                    
+                    <p class="toggle-text">
+                        Don't have an account? <span class="toggle-link" onclick="toggleForms()">Join Today</span>
+                    </p>
+                </form>
+
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h3 id="modalTitle" class="modal-title">Title</h3>
+            <p id="modalMessage" class="modal-message">Message</p>
+            <button class="modal-btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+
+        // Check if already logged in
+        if (localStorage.getItem('user')) {
+            window.location.href = '/dashboard';
+        }
+
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginError = document.getElementById('loginError');
+            const regError = document.getElementById('regError');
+            
+            loginForm.classList.toggle('hidden');
+            registerForm.classList.toggle('hidden');
+            
+            // Clear errors and inputs
+            loginError.style.display = 'none';
+            regError.style.display = 'none';
+        }
+
+        function showModal(title, message) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('customModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.remove('active');
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const errorMsg = document.getElementById('regError');
+            const btn = e.target.querySelector('button');
+
+            btn.textContent = 'Creating Account...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    showModal('Welcome to GameFlix', 'Registration successful! Please log in to start playing.');
+                    toggleForms();
+                    // Pre-fill login
+                    document.getElementById('loginUsername').value = username;
+                } else {
+                    const data = await response.json();
+                    errorMsg.textContent = data.message || 'Registration failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = 'Network error. Please try again.';
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorMsg = document.getElementById('loginError');
+            const btn = e.target.querySelector('button');
+
+            btn.textContent = 'Logging In...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    // Store user credentials for Basic Auth
+                    localStorage.setItem('user', JSON.stringify({ username, password }));
+                    window.location.href = '/dashboard';
+                } else {
+                    const data = await response.json();
+                    errorMsg.textContent = data.message || 'Login failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = 'Network error. Please try again.';
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.textContent = 'Log In';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
